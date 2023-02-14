@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const objectId = require("mongodb").ObjectId;
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,6 +13,7 @@ app.use(express.json());
 //pass: rdjnOdDnsavBHu82
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const { query } = require("express");
 const uri =
   "mongodb+srv://dbsajeeb:rdjnOdDnsavBHu82@cluster1.852mvug.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {
@@ -24,6 +26,7 @@ async function run() {
     await client.connect();
     const usersCollection = client.db("foodExpress").collection("users");
 
+    //for get data
     app.get("/user", async (req, res) => {
       const query = {};
       const cursor = usersCollection.find(query);
@@ -31,11 +34,18 @@ async function run() {
       res.send(users);
     });
 
+    //for send data
     app.post("/user", async (req, res) => {
       const newUser = req.body;
       console.log("New user", newUser);
       const result = await usersCollection.insertOne(newUser);
       res.send(result);
+    });
+
+    //for delete data
+    app.delete("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: objectId(id) };
     });
   } finally {
   }
