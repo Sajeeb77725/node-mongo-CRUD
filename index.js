@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const objectId = require("mongodb").ObjectId;
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -13,6 +12,7 @@ app.use(express.json());
 //pass: rdjnOdDnsavBHu82
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const ObjectId = require("mongodb").ObjectId;
 const { query } = require("express");
 const uri =
   "mongodb+srv://dbsajeeb:rdjnOdDnsavBHu82@cluster1.852mvug.mongodb.net/?retryWrites=true&w=majority";
@@ -34,6 +34,13 @@ async function run() {
       res.send(users);
     });
 
+    app.get("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
+
     //for send data
     app.post("/user", async (req, res) => {
       const newUser = req.body;
@@ -42,10 +49,32 @@ async function run() {
       res.send(result);
     });
 
+    //update user
+    app.put("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedUser = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          name: updatedUser.name,
+          email: updatedUser.email,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
     //for delete data
     app.delete("/user/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: objectId(id) };
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
     });
   } finally {
   }
