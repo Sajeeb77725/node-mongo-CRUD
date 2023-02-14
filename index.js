@@ -23,6 +23,14 @@ async function run() {
   try {
     await client.connect();
     const usersCollection = client.db("foodExpress").collection("users");
+
+    app.get("/user", async (req, res) => {
+      const query = {};
+      const cursor = usersCollection.find(query);
+      const users = await cursor.toArray();
+      res.send(users);
+    });
+
     app.post("/user", async (req, res) => {
       const newUser = req.body;
       console.log("New user", newUser);
